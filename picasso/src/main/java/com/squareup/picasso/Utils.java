@@ -239,6 +239,7 @@ final class Utils {
     return Math.max(Math.min(size, MAX_DISK_CACHE_SIZE), MIN_DISK_CACHE_SIZE);
   }
 
+  // App使用的RAM, 最多用其约15%当cache.
   static int calculateMemoryCacheSize(Context context) {
     ActivityManager am = getService(context, ACTIVITY_SERVICE);
     boolean largeHeap = (context.getApplicationInfo().flags & FLAG_LARGE_HEAP) != 0;

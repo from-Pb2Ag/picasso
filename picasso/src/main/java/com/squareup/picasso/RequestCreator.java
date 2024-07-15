@@ -200,6 +200,7 @@ public class RequestCreator {
    * <p>
    * <em>Note:</em> This method works only when your target is an {@link ImageView}.
    */
+  //
   public RequestCreator fit() {
     deferred = true;
     return this;
@@ -231,6 +232,7 @@ public class RequestCreator {
   }
 
   /** Resize the image to the specified size in pixels. */
+  // 
   public RequestCreator resize(int targetWidth, int targetHeight) {
     data.resize(targetWidth, targetHeight);
     return this;
@@ -241,6 +243,7 @@ public class RequestCreator {
    * distorting the aspect ratio. This cropping technique scales the image so that it fills the
    * requested bounds and then crops the extra.
    */
+  // 
   public RequestCreator centerCrop() {
     data.centerCrop(Gravity.CENTER);
     return this;
@@ -260,6 +263,7 @@ public class RequestCreator {
    * Centers an image inside of the bounds specified by {@link #resize(int, int)}. This scales
    * the image so that both dimensions are equal to or less than the requested bounds.
    */
+  //
   public RequestCreator centerInside() {
     data.centerInside();
     return this;
@@ -269,12 +273,14 @@ public class RequestCreator {
    * Only resize an image if the original image size is bigger than the target size
    * specified by {@link #resize(int, int)}.
    */
+  //
   public RequestCreator onlyScaleDown() {
     data.onlyScaleDown();
     return this;
   }
 
   /** Rotate the image by the specified degrees. */
+  // 只是简单的记录旋转的支点, 旋转的角度.
   public RequestCreator rotate(float degrees) {
     data.rotate(degrees);
     return this;
@@ -324,6 +330,7 @@ public class RequestCreator {
    * Custom transformations will always be run after the built-in transformations.
    */
   // TODO show example of calling resize after a transform in the javadoc
+  // 如果只是一种变换, 可以作为`Transformation`类的派生类的实例?
   public RequestCreator transform(@NonNull Transformation transformation) {
     data.transform(transformation);
     return this;
@@ -411,6 +418,7 @@ public class RequestCreator {
    * <em>Note</em>: The result of this operation is not cached in memory because the underlying
    * {@link Cache} implementation is not guaranteed to be thread-safe.
    */
+  // 同步加载.
   public Bitmap get() throws IOException {
     long started = System.nanoTime();
     checkNotMain();
@@ -448,6 +456,7 @@ public class RequestCreator {
    * {@link android.app.Activity} or {@link android.app.Fragment} from being garbage collected
    * until the request is completed.
    */
+  // 异步加载.
   public void fetch(@Nullable Callback callback) {
     long started = System.nanoTime();
 
@@ -527,6 +536,7 @@ public class RequestCreator {
    * garbage collected if you do not keep a strong reference to it. To receive callbacks when an
    * image is loaded use {@link #into(android.widget.ImageView, Callback)}.
    */
+  // 我们先注意这个版本的`into`.
   public void into(@NonNull Target target) {
     long started = System.nanoTime();
     checkMain();
@@ -534,10 +544,12 @@ public class RequestCreator {
     if (target == null) {
       throw new IllegalArgumentException("Target must not be null.");
     }
+    // Boolean初始化默认为false.
     if (deferred) {
       throw new IllegalStateException("Fit cannot be used with a Target.");
     }
 
+    // 没有"资源"需要我们绘制
     if (!data.hasImage()) {
       picasso.cancelRequest(target);
       target.onPrepareLoad(setPlaceholder ? getPlaceholderDrawable() : null);
@@ -547,15 +559,18 @@ public class RequestCreator {
     Request request = createRequest(started);
     String requestKey = createKey(request);
 
+    // 如果能直接加载.
     if (shouldReadFromMemoryCache(memoryPolicy)) {
       Bitmap bitmap = picasso.quickMemoryCacheCheck(requestKey);
       if (bitmap != null) {
+        // 图片成功加载的回调. 需要具体实现.
         picasso.cancelRequest(target);
         target.onBitmapLoaded(bitmap, MEMORY);
         return;
       }
     }
 
+    // 提交request的同时执行回调.
     target.onPrepareLoad(setPlaceholder ? getPlaceholderDrawable() : null);
 
     Action action =

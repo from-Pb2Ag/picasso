@@ -305,6 +305,7 @@ public class Picasso {
    * @see #load(String)
    * @see #load(int)
    */
+  // 基于url
   public RequestCreator load(@Nullable Uri uri) {
     return new RequestCreator(this, uri, 0);
   }
@@ -673,6 +674,8 @@ public class Picasso {
    * {@link Picasso} instance. You can either use this directly or by setting it as the global
    * instance with {@link #setSingletonInstance}.
    */
+  // java单例模式, `Double-Checked Locking`双重检查锁定. 注意`Picasso(Context context,...)`函数没有被public修饰, 因此不能在外部被调用.
+  // `synchronized` 在干什么????
   public static Picasso get() {
     if (singleton == null) {
       synchronized (Picasso.class) {

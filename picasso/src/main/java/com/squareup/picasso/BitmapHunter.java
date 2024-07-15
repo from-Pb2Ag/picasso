@@ -499,6 +499,7 @@ class BitmapHunter implements Runnable {
     return result;
   }
 
+  // 具体的图像变换.
   static Bitmap transformResult(Request data, Bitmap result, int exifOrientation) {
     int inWidth = result.getWidth();
     int inHeight = result.getHeight();
@@ -511,10 +512,12 @@ class BitmapHunter implements Runnable {
 
     Matrix matrix = new Matrix();
 
+    // `data.needsMatrixTransform()` 不一定意味`data.rotationDegrees != 0`.
     if (data.needsMatrixTransform() || exifOrientation != 0) {
       int targetWidth = data.targetWidth;
       int targetHeight = data.targetHeight;
 
+      // 旋转. 考虑显式的支点. 否则取缺省.
       float targetRotation = data.rotationDegrees;
       if (targetRotation != 0) {
         double cosR = Math.cos(Math.toRadians(targetRotation));
@@ -560,6 +563,7 @@ class BitmapHunter implements Runnable {
 
       // EXIf interpretation should be done before cropping in case the dimensions need to
       // be recalculated
+      // 直角旋转, 镜像.
       if (exifOrientation != 0) {
         int exifRotation = getExifRotation(exifOrientation);
         int exifTranslation = getExifTranslation(exifOrientation);
@@ -577,6 +581,7 @@ class BitmapHunter implements Runnable {
         }
       }
 
+      // `inWidth`是变换前的图片信息, 无需修改计算. `targetWidth`需要计算. 上文我们首先基于旋转得出了暂时解.
       if (data.centerCrop) {
         // Keep aspect ratio if one dimension is set to 0
         float widthRatio =
